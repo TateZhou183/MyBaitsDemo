@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 为这个mapper指定一个唯一的namespace，namespace的值习惯上设置成包名+sql映射文件名，这样就能够保证namespace的值是唯一的
+例如namespace="me.gacl.mapping.userMapper"就是me.gacl.mapping(包名)+userMapper(userMapper.xml文件去除后缀)
+ -->
+<mapper namespace="com.zy.mapping.userMapper">
+    <!-- 在select标签中编写查询的SQL语句， 设置select标签的id属性为getUser，id属性值必须是唯一的，不能够重复
+    使用parameterType属性指明查询时使用的参数类型，resultType属性指明查询返回的结果集类型
+    resultType="me.gacl.domain.User"就表示将查询结果封装成一个User类的对象返回
+    User类就是users表所对应的实体类
+    -->
+    <resultMap id="queryForListMap" type="com.zy.domain.User">  
+        <id column="id" property="id" jdbcType="INTEGER"/>  
+        <result column="name" property="name" jdbcType="VARCHAR"/>  
+        <result column="age" property="age" jdbcType="INTEGER"/>  
+        <collection property="role" javaType="java.util.List" ofType="com.zy.domain.Role">  
+            <id column="rid" property="rid" jdbcType="INTEGER" />  
+            <result column="userId" property="userId" jdbcType="VARCHAR" />  
+            <result column="roleName" property="roleName" jdbcType="VARCHAR" />  
+        </collection>  
+    </resultMap>
+    <select id="queryForList" resultMap="queryForListMap">  
+        SELECT  
+          u.id,  
+          u.name,  
+          u.age,  
+          r.rid,  
+          r.userId,  
+          r.roleName 
+        FROM  
+          users u  
+        LEFT JOIN  
+          role r  
+        ON  
+          u.id = r.userid  
+    </select> 
+    <!-- 
+        根据id查询得到一个user对象
+     -->
+    <select id="getUser" parameterType="int" 
+        resultType="com.zy.domain.User">
+        select * from users where id=#{id}
+    </select>
+    <!-- 
+        新增user对象
+     -->
+    <insert id="addUser" parameterType="com.zy.domain.User" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into users(name,age)  
+             values(#{name},#{age})  
+    </insert>
+    <!-- 
+        更新user对象
+     -->
+    <update id="updateUser" parameterType="com.zy.domain.User"> 
+        update users set name=#{name},age=#{age} 
+        where id=#{id}  
+    </update>
+    <!-- 
+        删除user对象
+     -->
+    <update id="deleteUser" parameterType="com.zy.domain.User"> 
+        delete from users where id=#{id}  
+    </update>
+</mapper>
